@@ -1,0 +1,249 @@
+
+{% extends "bootstrapLayout.html" %}
+
+{% block head %}
+<title>Covid19 data for {{state}}</title>
+<script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
+<script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+<style>
+canvas{
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!doctype html>
+<html>
+
+<head>
+
+	<div class="jumbotron">
+    <h1>Latest Covid19 data for {{state}}</h2>
+		<p> This data is from an API provided by
+			<a href="https://covidtracking.com/">
+				https://covidtracking.com/ </a>
+				<br>
+				and was last updated  as of {{dateChecked}}
+  </div>
+
+
+
+	<div style="width:75%;">
+		<canvas id="canvas"></canvas>
+	</div>
+	{% if yaxistype=='logarithmic' %}
+		With a logarithmic plot, straight lines denote exponential growth!!<br>
+		We want to see straight lines for testing, but flatter line for positive and death!
+	{% endif %}
+
+	<h2 style="margin-top:30px"> Pick another state to visualize </h2>
+	<form method="post" action="/">
+    Which state are you interested in?
+		<input type="radio" name="state" value='US' {% if 'US'==state %} checked {% endif %}>
+		The Entire US
+		or an individual state:
+		<br>
+
+			{% for s in states %}
+				<input type="radio" name="state" value={{s}} {% if s==state %} checked {% endif %}>
+				{{s}}&nbsp;&nbsp;&nbsp;
+			{% endfor %}
+
+		<br><br>
+		What scale do you want for the y-axis:
+		{% for t in ['linear','logarithmic'] %}
+		<input type="radio"
+		       name="yaxistype"
+					 value="{{t}}"
+					 {% if t==yaxistype %} checked {% endif %}
+					 > {{t}} &nbsp; &nbsp;
+		{% endfor %}
+		<br>
+		<hr>
+    <input
+				class="btn btn-lg btn-danger"
+		    type="submit"
+		    value="Show latest covid19 data">
+  </form>
+	<br><br><hr><br><br>
+	<h1>Here is the data for {{state}} in tabular form</h1>
+
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<td>date</td>
+				<td>positive</td>
+				<td>negative</td>
+				<td>pending</td>
+				<td>death</td>
+				<td>total</td>
+				<td>dateChecked</td>
+			</tr>
+		</thead>
+		<tbody>
+		{% for d in data %}
+			<tr>
+				<td>{{d['date']}}</td>
+				<td>{{d['positive']}}</td>
+				<td>{{d['negative']}}</td>
+				<td>{{d['pending']}}</td>
+				<td>{{d['death']}}</td>
+				<td>{{d['total']}}</td>
+				<td>{{d['dateChecked']}}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+	<br>
+	<br>
+
+	<script>
+		var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		var config = {
+			type: 'line',
+			data: {
+				labels: {{xs}},
+				datasets: [
+				{
+					label: 'Positive',
+					backgroundColor: window.chartColors.red,
+					borderColor: window.chartColors.red,
+					data: {{positive}},
+					fill: false,
+				},
+				{
+					label: 'Negative',
+					fill: false,
+					backgroundColor: window.chartColors.blue,
+					borderColor: window.chartColors.blue,
+					data: {{negative}},
+				},
+				{
+					label: 'Pending',
+					fill: false,
+					backgroundColor: window.chartColors.green,
+					borderColor: window.chartColors.green,
+					data: {{pending}},
+				},
+				{
+					label: 'Death',
+					fill: false,
+					backgroundColor: window.chartColors.yellow,
+					borderColor: window.chartColors.yellow,
+					data: {{death}},
+				},
+				{
+					label: 'Total',
+					fill: false,
+					backgroundColor: window.chartColors.black,
+					borderColor: window.chartColors.black,
+					data: {{total}},
+				}
+				]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: '{{yaxistype}} plot of Latest Covid-19 data for {{state}}'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Date'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						type:'{{yaxistype}}',
+						scaleLabel: {
+							display: true,
+							labelString: 'Value',
+
+
+
+						}
+					}]
+				}
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+		};
+
+		document.getElementById('randomizeData').addEventListener('click', function() {
+			config.data.datasets.forEach(function(dataset) {
+				dataset.data = dataset.data.map(function() {
+					return randomScalingFactor();
+				});
+
+			});
+
+			window.myLine.update();
+		});
+
+		var colorNames = Object.keys(window.chartColors);
+		document.getElementById('addDataset').addEventListener('click', function() {
+			var colorName = colorNames[config.data.datasets.length % colorNames.length];
+			var newColor = window.chartColors[colorName];
+			var newDataset = {
+				label: 'Dataset ' + config.data.datasets.length,
+				backgroundColor: newColor,
+				borderColor: newColor,
+				data: [],
+				fill: false
+			};
+
+			for (var index = 0; index < config.data.labels.length; ++index) {
+				newDataset.data.push(randomScalingFactor());
+			}
+
+			config.data.datasets.push(newDataset);
+			window.myLine.update();
+		});
+
+		document.getElementById('addData').addEventListener('click', function() {
+			if (config.data.datasets.length > 0) {
+				var month = MONTHS[config.data.labels.length % MONTHS.length];
+				config.data.labels.push(month);
+
+				config.data.datasets.forEach(function(dataset) {
+					dataset.data.push(randomScalingFactor());
+				});
+
+				window.myLine.update();
+			}
+		});
+
+		document.getElementById('removeDataset').addEventListener('click', function() {
+			config.data.datasets.splice(0, 1);
+			window.myLine.update();
+		});
+
+		document.getElementById('removeData').addEventListener('click', function() {
+			config.data.labels.splice(-1, 1); // remove the label first
+
+			config.data.datasets.forEach(function(dataset) {
+				dataset.data.pop();
+			});
+
+			window.myLine.update();
+		});
+	</script>
+{% endblock %}
