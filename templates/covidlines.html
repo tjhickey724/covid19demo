@@ -15,10 +15,7 @@ canvas{
 {% endblock %}
 
 {% block content %}
-<!doctype html>
-<html>
 
-<head>
 
 	<div class="jumbotron">
     <h1>Latest Covid19 data for {{state}}</h2>
@@ -26,7 +23,13 @@ canvas{
 			<a href="https://covidtracking.com/">
 				https://covidtracking.com/ </a>
 				<br>
-				and was last updated  as of {{dateChecked}}
+				and was last updated  as of {{dateChecked}}.
+				<br>
+				More details at <a href="/about">this link</a>
+				<br>
+				They just added the number of "hospitalized"
+				to the daily data on 3/22/2020.
+			</p>
   </div>
 
 
@@ -85,6 +88,7 @@ canvas{
 				<td>positive</td>
 				<td>negative</td>
 				<td>pending</td>
+				<td>hospitalized</td>
 				<td>death</td>
 				<td>total</td>
 				<td>dateChecked</td>
@@ -97,6 +101,7 @@ canvas{
 				<td>{{d['positive']}}</td>
 				<td>{{d['negative']}}</td>
 				<td>{{d['pending']}}</td>
+				<td>{{d['hospitalized']}}</td>
 				<td>{{d['death']}}</td>
 				<td>{{d['total']}}</td>
 				<td>{{d['dateChecked']}}</td>
@@ -130,11 +135,11 @@ canvas{
 					data: {{negative}},
 				},
 				{
-					label: 'Pending',
+					label: 'Hospitalized',
 					fill: false,
-					backgroundColor: window.chartColors.green,
-					borderColor: window.chartColors.green,
-					data: {{pending}},
+					backgroundColor: window.chartColors.purple,
+					borderColor: window.chartColors.purple,
+					data: {{hospitalized}},
 				},
 				{
 					label: 'Death',
@@ -146,8 +151,8 @@ canvas{
 				{
 					label: 'Total',
 					fill: false,
-					backgroundColor: window.chartColors.black,
-					borderColor: window.chartColors.black,
+					backgroundColor: 'rgb(0,0,0)',
+					borderColor: 'rgb(0,0,0)',
 					data: {{total}},
 				}
 				]

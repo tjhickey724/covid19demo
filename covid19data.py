@@ -42,6 +42,7 @@ def covidlines():
 	positive = clean([d['positive'] for d in data])
 	negative = clean([d['negative'] for d in data])
 	pending = clean([d['pending'] for d in data])
+	hospitalized = clean([d['hospitalized'] for d in data])
 	death = clean([d['death'] for d in data])
 	total = clean([d['total'] for d in data])
 	xs = [d['date'] for d in data]
@@ -53,12 +54,17 @@ def covidlines():
 			 positive=positive,
 			 negative=negative,
 			 pending=pending,
+			 hospitalized=hospitalized,
 			 death=death,
 			 total=total,
 			 yaxistype=yaxistype,
 			 dateChecked=data[-1]['dateChecked'],
 			 states = list(states.keys())
 			 )
+
+@app.route('/about')
+def about():
+  return render_template("about.html")
 
 
 
