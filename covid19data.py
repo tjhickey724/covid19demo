@@ -5,15 +5,36 @@
 
 from flask import Flask, render_template, request
 from covid19 import get_covid_data
+from covid19world import get_world_covid_data
+
 from time import time
+
+def fix_country(c):
+	return c.replace(' ','_').replace(',','_')
+
+
 app = Flask(__name__)
 
 (all_data,us_data) = get_covid_data()
 last_read = time()
 
+last_world_read = time()
+
+world_data = get_world_covid_data()
+world_data = {fix_country(c):world_data[c] for c in world_data.keys()}
+countries = list(world_data.keys())
+countries.sort()
+#countries = [c.replace(', ','_') for c in countries] # for 'Korea, South'
+print('countries')
+print(countries)
 
 
-@app.route('/',methods=['GET','POST'])
+
+@app.route('/')
+def main():
+	return render_template('covid_data.html')
+
+@app.route('/us',methods=['GET','POST'])
 def covidlines():
 	global all_data
 	global last_read
@@ -22,10 +43,12 @@ def covidlines():
 	if now-last_read > 60*5: # read new data at most once every 5 minutes
 		last_read=now
 		(all_data,us_data) = get_covid_data()
+		all_world_data = get_world_covid_data()
+		countries = all_world_data.keys()
 
 	""" gets covid19 data """
 	if request.method == 'GET':
-		state='US'
+		state='MA'
 		yaxistype='logarithmic'
 	elif request.method == 'POST':
 		state = request.form['state']
@@ -65,6 +88,53 @@ def covidlines():
 @app.route('/about')
 def about():
   return render_template("about.html")
+
+
+@app.route('/world',methods=['GET','POST'])
+def world():
+	global world_data
+	global last_world_read
+	global countries
+	now = time()
+	if now-last_world_read > 60*5: # read new data at most once every 5 minutes
+		last_world_read=now
+		world_data = get_world_covid_data()
+		world_data = {fix_country(c):world_data[c] for c in world_data.keys()}
+		countries = world_data.keys()
+		countries.sort()
+		#countries = [c.replace(', ','_') for c in countries] # for 'Korea, South'
+
+
+	if request.method == 'GET':
+		country='US'
+		yaxistype='logarithmic'
+	elif request.method == 'POST':
+		country = request.form['country']
+		yaxistype=request.form['yaxistype']
+
+	data = world_data[country]
+	confirmed = clean([d['confirmed'] for d in data])
+	deaths = clean([d['deaths'] for d in data])
+	recovered = clean([d['recovered'] for d in data])
+	print(confirmed)
+	print(deaths)
+	print(recovered)
+
+	xs = [d['date'] for d in data]
+	print('****** xs ******')
+	print(xs)
+	print("****************")
+
+	return render_template("worldcovidlines.html",
+	         country=country,
+			 data=data,
+			 xs=xs,
+			 confirmed=confirmed,
+			 deaths=deaths,
+			 recovered=recovered,
+			 yaxistype=yaxistype,
+			 countries=countries
+			 )
 
 
 

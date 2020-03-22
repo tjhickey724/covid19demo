@@ -33,8 +33,9 @@ def print_info(r):
 
 if __name__ == '__main__':
     state = input("What state do you want to see?")
-    data = get_covid_data(state)
-    for r in data:
+    (data,us) = get_covid_data()
+    state_data = [d for d in data if d['state']==state]
+    for r in state_data:
         print_info(r)
         print("\n*****************\n")
     print('bye!')

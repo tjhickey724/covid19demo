@@ -2,7 +2,7 @@
 {% extends "bootstrapLayout.html" %}
 
 {% block head %}
-<title>Covid19 data for {{state}}</title>
+<title>Covid19 data for {{country}}</title>
 <script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
 <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
 <style>
@@ -18,20 +18,17 @@ canvas{
 
 
 	<div class="jumbotron">
-    <h1>Latest Covid19 data for {{state}}</h2>
+    <h1>Latest Covid19 data for {{country}}</h2>
 		<p> This data is from an API provided by
-			<a href="https://covidtracking.com/">
-				https://covidtracking.com/ </a>
-				<br>
-				and was last updated  as of {{dateChecked}}.
+			<a href="https://github.com/pomber/covid19">
+				https://github.com/pomber/covid19 </a>
 				<br>
 				More details at <a href="/about">this link</a>
-				<br>
-				They just added the number of "hospitalized"
-				to the daily data on 3/22/2020.
 			</p>
 			<h2><a href="/">Back to main page</a></h2>
   </div>
+
+
 
 	<div class="chart-container" style="position: relative; height:50vh">
     <canvas id="canvas"></canvas>
@@ -44,65 +41,55 @@ canvas{
 		We want to see straight lines for testing, but flatter line for positive and death!
 	{% endif %}
 
-	<h2 style="margin-top:30px"> Pick another state to visualize </h2>
-	<form method="post" action="/us">
+	<h2 style="margin-top:30px"> Pick another country to visualize </h2>
+	<form method="post" action="/world">
+		<br><br>
 		What scale do you want for the y-axis:
 		{% for t in ['linear','logarithmic'] %}
 		<input type="radio"
 					 name="yaxistype"
 					 value="{{t}}"
 					 {% if t==yaxistype %} checked {% endif %}
-					 > {{t}} &nbsp; &nbsp;
+					 > {{t}} ||||
 		{% endfor %}
 		<br>
-		<hr>
+    Which country are you interested in?
+		<br>
 		<input
 				class="btn btn-lg btn-danger"
 				type="submit"
 				value="Show latest covid19 data">
-		<hr>
-    Which state are you interested in?
-		<input type="radio" name="state" value='US' {% if 'US'==state %} checked {% endif %}>
-		The Entire US
-		<br>
-		or an individual state:
 		<br>
 
-			{% for s in states %}
-				<input type="radio" name="state" value={{s}} {% if s==state %} checked {% endif %}>
-				{{s}}&nbsp;&nbsp;&nbsp;
+			{% for s in countries %}
+				<input type="radio" name="country" value={{s}} {% if s==country %} checked {% endif %}>
+				{{s}} |||
 			{% endfor %}
 
-		<br><br>
+
+		<br>
+		<hr>
 
   </form>
 	<br><br><hr><br><br>
-	<h1>Here is the data for {{state}} in tabular form</h1>
+	<h1>Here is the data for {{country}} in tabular form</h1>
 
 	<table class="table table-bordered table-striped">
 		<thead>
 			<tr>
 				<td>date</td>
-				<td>positive</td>
-				<td>negative</td>
-				<td>pending</td>
-				<td>hospitalized</td>
-				<td>death</td>
-				<td>total</td>
-				<td>dateChecked</td>
+				<td>confirmed</td>
+				<td>deaths</td>
+				<td>recovered</td>
 			</tr>
 		</thead>
 		<tbody>
 		{% for d in data %}
 			<tr>
 				<td>{{d['date']}}</td>
-				<td>{{d['positive']}}</td>
-				<td>{{d['negative']}}</td>
-				<td>{{d['pending']}}</td>
-				<td>{{d['hospitalized']}}</td>
-				<td>{{d['death']}}</td>
-				<td>{{d['total']}}</td>
-				<td>{{d['dateChecked']}}</td>
+				<td>{{d['confirmed']}}</td>
+				<td>{{d['deaths']}}</td>
+				<td>{{d['recovered']}}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -116,42 +103,28 @@ canvas{
 		var config = {
 			type: 'line',
 			data: {
-				labels: {{xs}},
+				labels: {{xs|safe}},
 				datasets: [
 				{
-					label: 'Positive',
+					label: 'confirmed',
 					backgroundColor: window.chartColors.red,
 					borderColor: window.chartColors.red,
-					data: {{positive}},
+					data: {{confirmed}},
 					fill: false,
 				},
 				{
-					label: 'Negative',
+					label: 'deaths',
 					fill: false,
 					backgroundColor: window.chartColors.blue,
 					borderColor: window.chartColors.blue,
-					data: {{negative}},
+					data: {{deaths}},
 				},
 				{
-					label: 'Hospitalized',
+					label: 'recovered',
 					fill: false,
 					backgroundColor: window.chartColors.purple,
 					borderColor: window.chartColors.purple,
-					data: {{hospitalized}},
-				},
-				{
-					label: 'Death',
-					fill: false,
-					backgroundColor: window.chartColors.yellow,
-					borderColor: window.chartColors.yellow,
-					data: {{death}},
-				},
-				{
-					label: 'Total',
-					fill: false,
-					backgroundColor: 'rgb(0,0,0)',
-					borderColor: 'rgb(0,0,0)',
-					data: {{total}},
+					data: {{recovered}},
 				}
 				]
 			},
