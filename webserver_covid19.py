@@ -15,15 +15,17 @@ def fix_country(c):
 
 app = Flask(__name__)
 
-(all_data,us_data) = get_covid_data()
-last_read = time()
+(states_data,us_data) = get_covid_data()
 
+last_read = time()
 last_world_read = time()
 
-world_data = get_world_covid_data()
-world_data = {fix_country(c):world_data[c] for c in world_data.keys()}
-countries = list(world_data.keys())
+(countries_data,world_data) = get_world_covid_data()
+
+countries_data = {fix_country(c):countries_data[c] for c in countries_data.keys()}
+countries = list(countries_data.keys())
 countries.sort()
+countries_data['world']=world_data
 #countries = [c.replace(', ','_') for c in countries] # for 'Korea, South'
 print('countries')
 print(countries)
@@ -36,15 +38,15 @@ def main():
 
 @app.route('/us',methods=['GET','POST'])
 def covidlines():
-	global all_data
+	global states_data
 	global last_read
 	global us_data
 	now = time()
-	if now-last_read > 60*5: # read new data at most once every 5 minutes
+	if now-last_read > 60*60: # read new data at most once every 60 minutes
 		last_read=now
-		(all_data,us_data) = get_covid_data()
-		all_world_data = get_world_covid_data()
-		countries = all_world_data.keys()
+		(states_data,us_data) = get_covid_data()
+		print('updated states covid data',now)
+
 
 	""" gets covid19 data """
 	if request.method == 'GET':
@@ -58,7 +60,7 @@ def covidlines():
 		data = us_data
 		dataChecked = data[-1]['date']
 	else:
-		data = [x for x in all_data if x['state']==state]
+		data = [x for x in states_data if x['state']==state]
 		dateChecked = data[-1]['dateChecked']
 
 	data.sort(key=lambda x: x['date'],reverse=False)
@@ -70,7 +72,7 @@ def covidlines():
 	total = clean([d['total'] for d in data])
 	xs = [d['date'] for d in data]
 
-	return render_template("covidlines.html",
+	return render_template("statecovidlines.html",
 	         state=state,
 			 data=data,
 			 xs=xs,
@@ -92,38 +94,38 @@ def about():
 
 @app.route('/world',methods=['GET','POST'])
 def world():
-	global world_data
+	global countries_data
 	global last_world_read
 	global countries
 	now = time()
-	if now-last_world_read > 60*5: # read new data at most once every 5 minutes
+	if now-last_world_read > 60*60: # read new data at most once every 60 minutes
 		last_world_read=now
-		world_data = get_world_covid_data()
-		world_data = {fix_country(c):world_data[c] for c in world_data.keys()}
-		countries = world_data.keys()
+		(countries_data,world_data) = get_world_covid_data()
+		countries_data = {fix_country(c):countries_data[c] for c in countries_data.keys()}
+		countries = list(countries_data.keys())
 		countries.sort()
+		countries_data['world']=world_data
+		print('updated world_covid_data',now)
 		#countries = [c.replace(', ','_') for c in countries] # for 'Korea, South'
 
 
 	if request.method == 'GET':
-		country='US'
+		country='world'
 		yaxistype='logarithmic'
 	elif request.method == 'POST':
 		country = request.form['country']
 		yaxistype=request.form['yaxistype']
 
-	data = world_data[country]
+	data = countries_data[country]
+	print('country',country)
+
 	confirmed = clean([d['confirmed'] for d in data])
 	deaths = clean([d['deaths'] for d in data])
 	recovered = clean([d['recovered'] for d in data])
-	print(confirmed)
-	print(deaths)
-	print(recovered)
+
 
 	xs = [d['date'] for d in data]
-	print('****** xs ******')
-	print(xs)
-	print("****************")
+
 
 	return render_template("worldcovidlines.html",
 	         country=country,

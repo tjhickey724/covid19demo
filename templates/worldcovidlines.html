@@ -53,8 +53,12 @@ canvas{
 					 > {{t}} ||||
 		{% endfor %}
 		<br>
-    Which country are you interested in?
+    Which data are you interested in?
 		<br>
+		Statistics for the entire world? 	<input type="radio" name="country" value='world' {% if 'world'==country %} checked {% endif %}>
+		<br> or an individual country
+		<br>
+
 		<input
 				class="btn btn-lg btn-danger"
 				type="submit"
@@ -107,23 +111,23 @@ canvas{
 				datasets: [
 				{
 					label: 'confirmed',
-					backgroundColor: window.chartColors.red,
-					borderColor: window.chartColors.red,
+					backgroundColor: window.chartColors.blue,
+					borderColor: window.chartColors.blue,
 					data: {{confirmed}},
 					fill: false,
 				},
 				{
 					label: 'deaths',
 					fill: false,
-					backgroundColor: window.chartColors.blue,
-					borderColor: window.chartColors.blue,
+					backgroundColor: window.chartColors.red,
+					borderColor: window.chartColors.red,
 					data: {{deaths}},
 				},
 				{
 					label: 'recovered',
 					fill: false,
-					backgroundColor: window.chartColors.purple,
-					borderColor: window.chartColors.purple,
+					backgroundColor: window.chartColors.green,
+					borderColor: window.chartColors.green,
 					data: {{recovered}},
 				}
 				]
@@ -133,7 +137,7 @@ canvas{
 				maintainAspectRatio:false,
 				title: {
 					display: true,
-					text: '{{yaxistype}} plot of Latest Covid-19 data for {{state}}'
+					text: '{{yaxistype}} plot of Latest Covid-19 data for {{country}}'
 				},
 				tooltips: {
 					mode: 'index',

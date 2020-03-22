@@ -6,8 +6,35 @@ def get_world_covid_data():
     url = "https://pomber.github.io/covid19/timeseries.json"
     text = requests.get(url).text
     all_data = json.loads(text)
+    world_data = summarize(all_data)
+    return (all_data,world_data)
 
-    return all_data
+def summarize(data):
+    """ create a summary of world stats for all days"""
+    dates = [d['date'] for d in data['US']]
+    result = []
+    for d in dates:
+        result += [summarize_date(d,data)]
+    return result
+
+def summarize_date(d,data):
+    """ create a summary of the
+         confirmed, deaths, recovered
+         for the data and all countries
+    """
+    deaths=0
+    confirmed=0
+    recovered=0
+    for c in data:
+        for x in data[c]:
+            if x['date']==d:
+                deaths += x['deaths']
+                confirmed += x['confirmed']
+                recovered += x['recovered']
+    return {'date':d,
+            'deaths':deaths,
+            'confirmed':confirmed,
+            'recovered':recovered}
 
 def collect(key,d,data):
     return [[t[key] for t in data[c]] for c in data.keys()]
