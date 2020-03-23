@@ -15,7 +15,7 @@ or
 ```
 and if neither of these look familiar, then google "installing python packages" to learn how to do this.
 
-## Running the Juptyer notebook code
+## Running the Jupyter notebook code
 You can also run the Jupyter notebook code by downloading this repository, cd'ing to the jupyterdemo folder
 and giving the command
 ``` linux
