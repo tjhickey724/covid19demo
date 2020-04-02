@@ -63,14 +63,16 @@ def covidlines():
 		data = [x for x in states_data if x['state']==state]
 		dateChecked = data[-1]['dateChecked']
 
+
+	#print(data)
 	data.sort(key=lambda x: x['date'],reverse=False)
-	positive = clean([d['positive'] for d in data])
-	negative = clean([d['negative'] for d in data])
-	pending = clean([d['pending'] for d in data])
-	hospitalized = clean([d['hospitalized'] for d in data])
-	death = clean([d['death'] for d in data])
-	total = clean([d['total'] for d in data])
-	xs = [d['date'] for d in data]
+	positive = clean([getVal(d,'positive') for d in data])
+	negative = clean([getVal(d,'negative') for d in data])
+	pending = clean([getVal(d,'pending') for d in data])
+	hospitalized = clean([getVal(d,'hospitalized') for d in data])
+	death = clean([getVal(d,'death') for d in data])
+	total = clean([getVal(d,'total') for d in data])
+	xs = [getVal(d,'date') for d in data]
 
 	return render_template("statecovidlines.html",
 	         state=state,
@@ -86,6 +88,12 @@ def covidlines():
 			 dateChecked=data[-1]['dateChecked'],
 			 states = list(states.keys())
 			 )
+
+def getVal(d,key):
+	try:
+		return d[key]
+	except:
+		return -1
 
 @app.route('/about')
 def about():
@@ -215,5 +223,5 @@ print('states=')
 print(list(states.keys()))
 
 if __name__ == '__main__':
-    #app.run('127.0.0.1',port=4000)
-	app.run('turing.cs-i.brandeis.edu',port=4000)
+    app.run('127.0.0.1',port=4000)
+	#app.run('turing.cs-i.brandeis.edu',port=4000)
