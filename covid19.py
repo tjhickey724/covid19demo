@@ -30,6 +30,8 @@ for d in dates:
     dayOfPandemic[d]=count
     count = count + 1
 
+
+
 def print_info(r):
     """
     r = {'date': 20200304,
@@ -184,6 +186,19 @@ southWest   = ['TX','OK','NM','CO','UT','AZ']
 midWest     = ['OH','KY','IN','IL','MI','WI','MO','IA','MN','KS','NE','SD','ND']
 west        = ['CA','NV','HI']
 northWest   = ['WY','MT','ID','OR','WA','AK']
+
+demStates = ['WA','OR','CA','NV','CO','NM',
+            'MN','IL','VA','MD','DE','NJ',
+            'NY','CT','RI','MA','VT','NH','ME','HI']
+
+def otherStates(L):
+    return [s for s in states.keys() if s not in L]
+repStates = [s for s in states.keys() if s not in demStates]
+def regionPop(states):
+    pop=0
+    for st in states:
+        pop += statePop(st)
+    return(pop)
 
 
 if __name__ == '__main__':

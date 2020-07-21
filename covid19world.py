@@ -6,7 +6,7 @@ def get_world_covid_data():
     url = "https://pomber.github.io/covid19/timeseries.json"
     text = requests.get(url).text
     all_data = json.loads(text)
-    print(all_data)
+    #print(all_data)
     world_data = summarize(all_data)
     return (all_data,world_data)
 
@@ -60,6 +60,50 @@ def print_info(r):
 
     """
     print(r)
+
+countryData = json.load(open("country-by-population.json","r"))
+
+countryNames = {
+'Cabo Verde':'Cape Verde'
+,'Congo (Brazzaville)':'Congo'
+,'Congo (Kinshasa)':'The Democratic Republic of Congo'
+,"Cote d'Ivoire":'Ivory Coast'
+,"Diamond Princess":'none'
+,"Czechia":'Czech Republic'
+,"Eswatini":'Swaziland'
+,"Fiji":'Fiji Islands'
+,"Holy See":'Holy See (Vatican City State)'
+,"Korea, South":'South Korea'
+,"Russia":'Russian Federation'
+,"Serbia":"Serbia"
+,"Sri Lanka":"SriLanka"
+,"Taiwan*":'none'
+,"US":'United States'
+,"Timor-Leste":'East Timor'
+,"Libya":'Libyan Arab Jamahiriya'
+,"West Bank and Gaza":'none'
+,"Kosovo":'none'
+,"Burma":'Myanmar'
+,"MS Zaandam":'none'
+}
+
+def getCountryPop(country):
+    cname=country
+    if country in countryNames:
+        cname = countryNames[country]
+    if cname=='none':
+        pop=0
+    else:
+        pop = countryPop(cname)
+    if pop==0:
+        return(1000000000000)
+    else:
+        return(pop)
+
+def countryPop(country):
+    cs = [d['population'] for d in countryData if d['country']==country]
+    return cs[0] if len(cs)==1 else 0
+
 
 #recipes = get_recipes('stew',ingredients=['lamb','cabbage'])
 
