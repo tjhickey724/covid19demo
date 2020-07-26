@@ -115,7 +115,7 @@ def getStateData(state,field):
     sd = [(x['date'],getField(x,field)) for x in cdata[0] if x['state'] == state]
     return sorted(sd)
 
-stateData = json.load(open("states.json","r"))
+stateData = json.load(open("data/states.json","r"))
 
 states = {
     "AL": "Alabama",

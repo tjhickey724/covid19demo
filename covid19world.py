@@ -1,7 +1,7 @@
 import json
 import requests
 
-/*
+"""
 This module gets the lastest daily covid 19 data elements from pomber.github.io/covid18
 which in turn gets its data from John Hopkins University
 
@@ -9,9 +9,7 @@ which in turn gets its data from John Hopkins University
 
 This module also defines the getCountryPop(c) function which returns the 2019 population 
 of the country c.  It uses the same names as in the John Hopkins University dataset
-
-
-*/
+"""
 
 def get_world_covid_data():
     """returns list of daily covid data for the state"""
