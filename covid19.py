@@ -193,7 +193,9 @@ demStates = ['WA','OR','CA','NV','CO','NM',
 
 def otherStates(L):
     return [s for s in states.keys() if s not in L]
+
 repStates = [s for s in states.keys() if s not in demStates]
+
 def regionPop(states):
     pop=0
     for st in states:

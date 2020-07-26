@@ -1,5 +1,18 @@
 import json
 import requests
+
+/*
+This module gets the lastest daily covid 19 data elements from pomber.github.io/covid18
+which in turn gets its data from John Hopkins University
+
+  https://github.com/CSSEGISandData/COVID-19
+
+This module also defines the getCountryPop(c) function which returns the 2019 population 
+of the country c.  It uses the same names as in the John Hopkins University dataset
+
+
+*/
+
 def get_world_covid_data():
     """returns list of daily covid data for the state"""
 
@@ -61,7 +74,7 @@ def print_info(r):
     """
     print(r)
 
-countryData = json.load(open("country-by-population.json","r"))
+countryData = json.load(open("data/country-by-population.json","r"))
 
 countryNames = {
 'Cabo Verde':'Cape Verde'
@@ -96,6 +109,7 @@ def getCountryPop(country):
     else:
         pop = countryPop(cname)
     if pop==0:
+        print("country with no population ",country)
         return(1000000000000)
     else:
         return(pop)
