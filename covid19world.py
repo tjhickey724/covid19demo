@@ -48,6 +48,14 @@ def summarize_date(d,data):
             'confirmed':confirmed,
             'recovered':recovered}
 
+def averageList(k,L):
+    """ average data over k days"""
+    week = [0]*k
+    newL=[]
+    for x in L:
+        week = week[1:]+[x]
+        newL += [sum(week)/k]
+    return newL
 
 def clean(x):
 	if type(x)==int:
